@@ -14,19 +14,16 @@ below to change the plot and the animation given.
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import odeint 
-import matplotlib.animation as animation
 
 # can use this to show any initial values for solutions, or for any constants that are in the differential equations            
-# ========================Variable Initialisation==============================
-N = 68182137.0                          # Population of the UK
-I0 = 521997.0                           # Initial infected
-R0 = 0.0                                # Initial recovered
-D0 = 79509.0                            # Initial death toll
-S0 = N - I0 - R0 - D0                   # Total initially susceptible
-t = np.linspace(0, 365, 366)            # Graph time steps (Days)
-beta = 0.2                              # Contact rate
-gamma = 1/14                            # Mean recovery rate (1/number of days)
-d = 0.01                                # Probability of death
+# ========================Variable Initialisation==============================                      
+Tp0 = 36
+Ta0 = 0                                              
+Tw0 = 20                  
+t = np.linspace(0, 10000, 10001)  
+q=1/3600       
+k=1/1006
+m=1/2300
 # =============================================================================
 
 
@@ -35,7 +32,7 @@ d = 0.01                                # Probability of death
 #                             Differential equation
 #----------------------------------------------------------------------------#
 # make sure to swap out the variables here for ones we'll be using
-def SIR_model(y,t,N,beta,gamma,d):
+def SIR_model(y,t):
     """Creates all the differential equations 
        that are then integrated over time
         
@@ -44,20 +41,23 @@ def SIR_model(y,t,N,beta,gamma,d):
        to add more variables that can be measured to track
        the progress of the virus"""
 
-    S,I,R,D = y
+    Tp,Ta,Tw = y
         
-    # can replace these equations for ones on temperature of each object(air, walls, etc.)        
-    dSdt = -(beta * S * I / N) 
-    dIdt = (beta * S * I / N) - (gamma * I) - (d * I) 
-    dRdt = (gamma * I) 
-    dDdt = (d * I)
+    # can replace these equations for ones on temperature of each object(air, walls, etc.)  
+    ''' applied by Fouriers law, q = -k*del(T) as of now this shows change in energy, not temperature, since the RHS 
+     of each equation is equal to the heat flux (which is flow of energy over time, dQdt).
+     I think we can keep dQdt for conservation of energy for now to check that energy is conserved in a closed system.
+     But to go from dQdt to dTdt we just divide by thermal capacity, like seen in Mikolaj's code.'''
+    dTpdt = q*(Ta-Tp)                         
+    dTadt = k*(Tw-Ta) - k*(Ta-Tp)            
+    dTwdt = m*(Ta-Tw) 
 
-    return dSdt, dIdt, dRdt, dDdt
+    return dTpdt, dTadt, dTwdt
 
 # This integrates all the derivatives over time, t
 # same thing applies here as said on line 37
-solution = odeint(SIR_model, [S0, I0, R0, D0], t, args=(N,beta,gamma,d))
-S,I,R,D = solution.T
+solution = odeint(SIR_model, [Tp0,Ta0,Tw0], t)
+Tp, Ta,Tw = solution.T
 
 
 
@@ -68,15 +68,14 @@ S,I,R,D = solution.T
 
 # can change these so they match variables in equations
 plt.figure()
-plt.plot(t, S, 'b', lw = 2, label = 'Susceptible') 
-plt.plot(t, I, 'r', lw = 2, label = 'Infected') 
-plt.plot(t, R, 'g', lw = 2, label = 'Recovered') 
-plt.plot(t, D, 'k', lw = 2, label = 'Dead')
-plt.title('Epidemic over time')
+plt.plot(t, Tp, 'g', lw = 2, label = 'Person temperature')
+plt.plot(t, Ta, 'b', lw = 2, label = 'Air temperature') 
+plt.plot(t, Tw, 'r', lw = 2, label = 'Wall temperature') 
+plt.title('Temperature over time')
 plt.legend(loc = 'best')
-plt.xlabel('Time (days)');
-plt.ylabel('Population')
+plt.xlabel('Time');
+plt.ylabel('Temperature oC')
 plt.grid()
-plt.ylim(0, N)
+plt.ylim(0, 40)
 plt.show()
 
