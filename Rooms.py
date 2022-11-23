@@ -5,7 +5,12 @@ import matplotlib.pyplot as plt
 from scipy.integrate import odeint 
 import math
 
-def Volumecalc(Length,Width,Height):
+def AreaCalc(Length,Height):
+    '''Length and height'''
+    A = Length*Height
+    return A
+
+def VolumeCalc(Length,Width,Height):
     '''Length, width and height'''
     V = Length*Width*Height
     return V
@@ -17,14 +22,16 @@ def thermalCapacitanceCalculator(p,V,c_p):
 
 # can use this to show any initial values for solutions, or for any constants that are in the differential equations            
 # ========================Variable Initialisation==============================                      
-T10 = 15                                              
-T20 = 20 
-T30 = 15  
-To0 = 0               
-t = np.linspace(0, 50, 1001)  
+T10 = 15                                        # Initial temp of Room 1                   
+T20 = 20                                        # Initial temp of Room 2
+T30 = 12                                        # Initial temp of Room 3
+To0 = 0                                         # Initial temp of outside the house
+N = 1                                        # Number of hours in simulation
+Xn = 5                                          # Number of points plotted per minute 
+t = np.linspace(0, N*(60), (Xn*N*(60))+1) 
 k_wall = 0.038
 k_air = 0.02435
-
+#alternative = -(1/9)*math.sin(t/90)
 # ========================Dimensional variables==============================
 L_room1 = 10
 L_room2 = 10 
@@ -34,25 +41,31 @@ L_wall = 10
 W_room1 = 10
 W_room3 = 10
 W_room2 = 12.5
-W_wall = 0.23
+Thickness_wall = 0.23
 
 H_room1 = 2
 H_room2 = 2
 H_room3 = 2
 H_wall = 2
 
+A_Wall_1_o = AreaCalc(W_room1,H_room1)
+A_Wall_1_2 = AreaCalc(W_room1,H_room1)
+A_Wall_2_o = AreaCalc(W_room2,H_room2)
+A_Wall_3_2 = AreaCalc(W_room3,H_room3)
+A_Wall_3_o = AreaCalc(W_room3,H_room3)
+V_room1 = VolumeCalc(L_room1,W_room1,H_room1)
+V_room2 = VolumeCalc(L_room2,W_room2,H_room2)
+V_room3 = VolumeCalc(L_room3,W_room3,H_room3)
+C_room1 = thermalCapacitanceCalculator(1.276,V_room1 , 1006)
+C_room2 = thermalCapacitanceCalculator(1.276,V_room2 , 1006)
+C_room3 = thermalCapacitanceCalculator(1.276,V_room3 , 1006)
 
-V_room1 = Volumecalc(L_room1,W_room1,H_room1)
-V_room2 = Volumecalc(L_room2,W_room2,H_room2)
-V_room3 = Volumecalc(L_room3,W_room3,H_room3)
-C_room1 = thermalCapacitanceCalculator(1.276,V_room1 , 1.006)
-C_room2 = thermalCapacitanceCalculator(1.276,V_room2 , 1.006)
-C_room3 = thermalCapacitanceCalculator(1.276,V_room3 , 1.006)
-
-V_wall = Volumecalc(L_wall,W_wall,H_wall)
+V_wall = VolumeCalc(L_wall,Thickness_wall,H_wall)
 C_wall = thermalCapacitanceCalculator(600.5, V_wall, 2300)
 # =============================================================================
 
+# Prints the values of the thermal capacity of each room
+#print('C_room1 =',C_room1,'\nC_room2 =',C_room2,'\nC_room3 =',C_room3)
 
 #----------------------------------------------------------------------------#
 #                             Differential equation
@@ -68,17 +81,17 @@ def Heat_model(y,t):
      I think we can keep dQdt for conservation of energy for now to check that energy is conserved in a closed system.
      But to go from dQdt to dTdt we just divide by thermal capacity, like seen in Mikolaj's code.'''
 
-    # Heat flow for every room                        
-    dQ1dt = (k_wall/W_wall)*(To - T1) + (k_wall/W_wall)*(T2-T1)         
-    dQ2dt = (k_wall/W_wall)*(T1-T2) + (k_wall/W_wall)*(T3-T2) 
-    dQ3dt = (k_wall/W_wall)*(T2-T3) + (k_wall/W_wall)*(To - T3) 
-    dQodt = (7/24)*math.pi*math.sin((math.pi*t)/12)
+    # Net heat flow for every room                        
+    dQ1dt = ((3*A_Wall_1_o)*(k_wall/Thickness_wall)*(To-T1)) + ((A_Wall_1_2)*(k_wall/Thickness_wall)*(T2-T1))          
+    dQ2dt = ((A_Wall_1_2)*(k_wall/Thickness_wall)*(T1-T2)) + ((A_Wall_3_2)*(k_wall/Thickness_wall)*(T3-T2)) + ((2*A_Wall_2_o)*(k_wall/Thickness_wall)*(To-T2)) 
+    dQ3dt = ((A_Wall_3_2)*(k_wall/Thickness_wall)*(T2-T3)) + ((3*A_Wall_3_o)*(k_wall/Thickness_wall)*(To-T3)) 
+    dQodt = 0 #-(1/9)*math.sin(t/90)
 
     # rate of change of temperature for each room
-    dT1dt = dQ1dt/C_room1
-    dT2dt = dQ2dt/C_room2
-    dT3dt = dQ3dt/C_room3
-    dTodt = dQodt
+    dT1dt = (dQ1dt/C_room1)*60
+    dT2dt = (dQ2dt/C_room2)*60
+    dT3dt = (dQ3dt/C_room3)*60
+    dTodt = (dQodt)
 
     return dT1dt, dT2dt, dT3dt, dTodt
 
@@ -91,7 +104,6 @@ T1,T2,T3,To = solution.T
 #----------------------------------------------------------------------------#
 #                                 Plot
 #----------------------------------------------------------------------------#
-print('C_room1 =',C_room1,'\nC_room2 =',C_room2,'\nC_room3 =',C_room3)
 
 plt.figure()
 plt.plot(t, T1, 'g', lw = 2, label = 'Left room temp')
