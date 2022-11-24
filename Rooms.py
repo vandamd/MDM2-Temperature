@@ -31,35 +31,44 @@ Xn = 5                                          # Number of points plotted per m
 t = np.linspace(0, N*(60), (Xn*N*(60))+1) 
 k_wall = 0.038
 k_air = 0.02435
-#alternative = -(1/9)*math.sin(t/90)
+k_window = 0.96                                 # this is the value for glass, apparently lower for windows, needs looking into
+Cp_air = 1005
+Cv_air = 718
+#alternative_outside_temp1 = -(1/144)*math.pi*math.sin((math.pi*t)/1440)     # goes to -20 after 1 day
+#alternative_outside_temp2 = -(1/9)*math.sin(t/90)                           # goes to -20 after 283 minutes
 # ========================Dimensional variables==============================
 L_room1 = 10
 L_room2 = 10 
 L_room3 = 10
 L_wall = 10
+L_window = 0.7
 
 W_room1 = 10
 W_room3 = 10
 W_room2 = 12.5
 Thickness_wall = 0.23
+Thickness_window = 0.00238                 # not sure if correct, different companies say different things
 
 H_room1 = 2
 H_room2 = 2
 H_room3 = 2
 H_wall = 2
+H_window = 0.7
+
+A_Window = AreaCalc(L_window,H_window)
+
+V_room1 = VolumeCalc(L_room1,W_room1,H_room1)
+V_room2 = VolumeCalc(L_room2,W_room2,H_room2)
+V_room3 = VolumeCalc(L_room3,W_room3,H_room3)
+C_room1 = thermalCapacitanceCalculator(1.276,V_room1 , Cv_air)
+C_room2 = thermalCapacitanceCalculator(1.276,V_room2 , Cv_air)
+C_room3 = thermalCapacitanceCalculator(1.276,V_room3 , Cv_air)
 
 A_Wall_1_o = AreaCalc(W_room1,H_room1)
 A_Wall_1_2 = AreaCalc(W_room1,H_room1)
 A_Wall_2_o = AreaCalc(W_room2,H_room2)
 A_Wall_3_2 = AreaCalc(W_room3,H_room3)
 A_Wall_3_o = AreaCalc(W_room3,H_room3)
-V_room1 = VolumeCalc(L_room1,W_room1,H_room1)
-V_room2 = VolumeCalc(L_room2,W_room2,H_room2)
-V_room3 = VolumeCalc(L_room3,W_room3,H_room3)
-C_room1 = thermalCapacitanceCalculator(1.276,V_room1 , 1006)
-C_room2 = thermalCapacitanceCalculator(1.276,V_room2 , 1006)
-C_room3 = thermalCapacitanceCalculator(1.276,V_room3 , 1006)
-
 V_wall = VolumeCalc(L_wall,Thickness_wall,H_wall)
 C_wall = thermalCapacitanceCalculator(600.5, V_wall, 2300)
 # =============================================================================
@@ -77,16 +86,15 @@ def Heat_model(y,t):
     T1,T2,T3,To = y
         
     ''' applied by Fouriers law, q = -k*del(T) as of now this shows change in energy, not temperature, since the RHS 
-     of each equation is equal to the heat flux (which is flow of energy over time, dQdt).
-     I think we can keep dQdt for conservation of energy for now to check that energy is conserved in a closed system.
-     But to go from dQdt to dTdt we just divide by thermal capacity, like seen in Mikolaj's code.'''
+     of each equation is equal to the heat flux (which is flow of energy over time, dQdt)'''
 
     # Net heat flow for every room                        
-    dQ1dt = ((3*A_Wall_1_o)*(k_wall/Thickness_wall)*(To-T1)) + ((A_Wall_1_2)*(k_wall/Thickness_wall)*(T2-T1))          
+    dQ1dt = ((2*A_Wall_1_o)*(k_wall/Thickness_wall)*(To-T1)) + ((A_Wall_1_o - A_Window)*(k_wall/Thickness_wall)*(To-T1)) + (
+        (A_Window)*(k_window/Thickness_window)*(To-T1)) + ((A_Wall_1_2)*(k_wall/Thickness_wall)*(T2-T1))  
+
     dQ2dt = ((A_Wall_1_2)*(k_wall/Thickness_wall)*(T1-T2)) + ((A_Wall_3_2)*(k_wall/Thickness_wall)*(T3-T2)) + ((2*A_Wall_2_o)*(k_wall/Thickness_wall)*(To-T2)) 
     dQ3dt = ((A_Wall_3_2)*(k_wall/Thickness_wall)*(T2-T3)) + ((3*A_Wall_3_o)*(k_wall/Thickness_wall)*(To-T3)) 
-    dQodt = 0 #-(1/9)*math.sin(t/90)
-
+    dQodt = (7/240)*math.pi*math.sin((math.pi*t)/120)
     # rate of change of temperature for each room
     dT1dt = (dQ1dt/C_room1)*60
     dT2dt = (dQ2dt/C_room2)*60
@@ -113,7 +121,7 @@ plt.plot(t, To, 'm', lw = 2, label = 'outside temperature')
 plt.title('Temperature over time')
 plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05),
           fancybox=True, shadow=True, ncol=5)
-plt.xlabel('Time');
-plt.ylabel('Temperature oC')
+plt.xlabel('Time(minutes)');
+plt.ylabel('Temperature ($^\circ$C)')
 plt.grid()
 plt.show()
