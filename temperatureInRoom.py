@@ -21,12 +21,23 @@ def thermalCapacitanceCalculator(p,v,c_p):
 #define constants
 k_wall = 0.126
 k_air = 0.02435
+k_wind = 0.688
+k_door = 0.78
+
 Lt_wall = 0.23
 Lt_air = 1
+Lt_wind = 0.024
+Lt_door = 0.425
+
 A_wall = 1
 A_air = 1
+A_wind = 1.2*1.5
+A_door = 1.981*0.762
+
 C_wall = thermalCapacitanceCalculator(600.5, 0.29*1*1*4, 2300)
 C_air = thermalCapacitanceCalculator(1.276, 1, 1.006)
+C_wind = thermalCapacitanceCalculator(2500, 0.024*1.2*1.5, 753)
+C_door = thermalCapacitanceCalculator(720, 0.425*1.981*0.762, 2380)
 
 def airTemperatureChangeBasic(T,t,k_air,Lt_air, A_air, C_air):
     """energy rate of change = thermal conductivity * area of the surface / thickness of surface
@@ -40,6 +51,13 @@ def wallTemperatureChangeBasic(T,t,k_wall,Lt_wall, A_wall, C_wall):
     dTdt = dqdt/C_wall #from Vandam's Equation (changing room temperature equation)
     return dTdt
 
+# instead of 1 term, when considering walls with doors and windows (shut) will be 3 terms that consider each component individually
+def wallTemperatureChangeDoorsandWindows(T,t,k_wall,Lt_wall, A_wall, C_wall, k_wind,Lt_wind, A_wind, C_wind, k_door,Lt_door, A_door, C_door):
+    dqdt = (k_wall*(A_wall-A_wind-A_door)/Lt_wall) + (k_wind*A_wind/Lt_wind) + (k_door*A_door/Lt_door) #equation for q, the heat transfer
+    dTdt = dqdt/((C_wall*((A_wall-A_wind-A_door)/A_wall))+(C_door*(A_door/A_wall))+(C_wind*(A_wind/A_wall)))
+    return dTdt
+
+#initial condition(s) and discretisation points
 initialTemp = [25]
 t = np.linspace(0,20,200)
 
@@ -55,3 +73,7 @@ ax.legend()
 ax.set_xlabel('t')
 ax.set_ylabel('T')
 plt.show()
+
+
+"""thermal behaviour is mainly influenced by convection and conduction"""
+"""formula for heat transfer, q_cv: (kA/L_t)*(dt) where k is thermal conductivity, A is the area and L_t is the thickness in m"""
