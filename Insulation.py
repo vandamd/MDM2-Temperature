@@ -22,8 +22,8 @@ def thermalCapacitanceCalculator(p,V,c_p):
 
 # can use this to show any initial values for solutions, or for any constants that are in the differential equations            
 # ========================Variable Initialisation==============================                      
-T10 = 20                                        # Initial temp of Room 1                   
-T20 = 15                                        # Initial temp of Room 2
+T10 = 15                                        # Initial temp of Room 1                   
+T20 = 20                                        # Initial temp of Room 2
 T30 = 15                                        # Initial temp of Room 3                                                          
 To0 = 0                                         # Initial temp of outside the house
 Tins1_0 = 10
