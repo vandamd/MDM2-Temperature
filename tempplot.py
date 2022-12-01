@@ -4,7 +4,7 @@ import numpy as np
 import math
 
 # --- Inputs ---
-# T_desired = 25          # Constant
+T_desired = 25          # Constant
 T_heater = 50           # Constant
 # T_outside = 5           # Constant, will change
 T = 10                  # *Changes* 
@@ -25,7 +25,9 @@ def returns_dTdt(T, t):
     T_outside = (7/2 * math.sin(pi/12 * t - pi/2)) + (9 * math.cos(1/180 * t)) - 7.5
 
     # Heat Gain Equation
-    dQgdt = (T_heater - T) * M_heater * c_air
+    # dQgdt = (T_heater - T) * M_heater * c_air
+    # dQgdt = (T_desired - T) * M_heater * c_air
+    dQgdt = (T - T_initial) * M_heater * c_air
 
     # Heat Loss Equation
     dQldt = (T - T_outside)/R
