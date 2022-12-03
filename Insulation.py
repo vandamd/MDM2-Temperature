@@ -69,7 +69,6 @@ Insulation_wall_thickness = 0.115
 H_wall = 2
 H_roof = 2
 slope_length = math.sqrt((H_roof)**2 + (W_house/2)**2)
-print(slope_length)
 
 A_room1 = AreaCalc(L_room1,W_room1)
 A_room2 = AreaCalc(L_room2,W_room2)
@@ -112,44 +111,40 @@ def Insulation_model(y,t):
     """Creates all the differential equations 
        that are then integrated over time"""
 
-    T1,T2,T3,Ta,Tb,Tins1,Tins2,Tins3,Tins4,To,Tg = y
+    T1,T2,T3,Tins1,Tins2,Tins3,Tins4,To = y
 
         
     ''' applied by Fouriers law, q = -k*del(T) as of now this shows change in energy, not temperature, since the RHS 
      of each equation is equal to the heat flux (which is flow of energy over time, dQdt)'''
 
     # Net heat flow for every room                        
-    dQ1dt = ((A_Wall_1_2)*(k_wall/Thickness_wall)*(T2-T1)) + ((A_Wall_1_o)*(k_wall/Insulation_wall_thickness)*(Tins1-T1)) + ((A_Wall_1_o)*(k_wall/Insulation_wall_thickness)*(Tins4-T1)) + ((A_Wall_1_o)*(k_wall/Insulation_wall_thickness)*(Tins3-T1)) + ((A_room1)*(k_wall/Thickness_wall)*(Ta-T1)) + ((A_room1)*(k_wall/Thickness_wall)*(Tg-T1)) + geothermal_power
-    dQ2dt = ((A_Wall_1_2)*(k_wall/Thickness_wall)*(T1-T2)) + ((A_Wall_3_2)*(k_wall/Thickness_wall)*(T3-T2)) + ((A_Wall_2_o)*(k_wall/Insulation_wall_thickness)*(Tins1-T2)) + ((A_Wall_2_o)*(k_wall/Insulation_wall_thickness)*(Tins3-T2)) + ((A_room2)*(k_wall/Thickness_wall)*(Ta-T2)) + ((A_room2)*(k_wall/Thickness_wall)*(Tb-T2)) + geothermal_power
-    dQ3dt = ((A_Wall_3_2)*(k_wall/Thickness_wall)*(T2-T3)) + ((A_Wall_3_o)*(k_wall/Insulation_wall_thickness)*(Tins1-T3)) + ((A_Wall_3_o)*(k_wall/Insulation_wall_thickness)*(Tins2-T3)) + ((A_Wall_3_o)*(k_wall/Insulation_wall_thickness)*(Tins3-T3)) + ((A_room3)*(k_wall/Thickness_wall)*(Ta-T3)) + ((A_room3)*(k_wall/Thickness_wall)*(Tg-T3)) + geothermal_power
-    dQadt = ((A_room1)*(k_wall/Thickness_wall)*(T1-Ta)) + ((A_room2)*(k_wall/Thickness_wall)*(T2-Ta)) + ((A_room3)*(k_wall/Thickness_wall)*(T3-Ta)) + ((2*A_slope_roof)*(k_wall/Thickness_wall)*(To-Ta)) + ((4*A_triangle)*(k_wall/Thickness_wall)*(T3-Ta))
-    dQbdt = ((A_room2)*(k_wall/Thickness_wall)*(T2-Tb)) + ((A_room2)*(k_wall/Thickness_wall)*(Tg-Tb)) + ((4*A_Wall_1_2)*(k_wall/Thickness_wall)*(Tg-Tb))
-
+    dQ1dt = ((A_Wall_1_2)*(k_wall/Thickness_wall)*(T2-T1)) + ((A_Wall_1_o)*(k_wall/Insulation_wall_thickness)*(Tins1-T1)) + ((A_Wall_1_o)*(k_wall/Insulation_wall_thickness)*(Tins4-T1)) + ((A_Wall_1_o)*(k_wall/Insulation_wall_thickness)*(Tins3-T1)) + ((A_room1)*(k_wall/Thickness_wall)*(To-T1)) + geothermal_power
+    dQ2dt = ((A_Wall_1_2)*(k_wall/Thickness_wall)*(T1-T2)) + ((A_Wall_3_2)*(k_wall/Thickness_wall)*(T3-T2)) + ((A_Wall_2_o)*(k_wall/Insulation_wall_thickness)*(Tins1-T2)) + ((A_Wall_2_o)*(k_wall/Insulation_wall_thickness)*(Tins3-T2)) + ((A_room2)*(k_wall/Thickness_wall)*(To-T2)) + geothermal_power
+    dQ3dt = ((A_Wall_3_2)*(k_wall/Thickness_wall)*(T2-T3)) + ((A_Wall_3_o)*(k_wall/Insulation_wall_thickness)*(Tins1-T3)) + ((A_Wall_3_o)*(k_wall/Insulation_wall_thickness)*(Tins2-T3)) + ((A_Wall_3_o)*(k_wall/Insulation_wall_thickness)*(Tins3-T3)) + ((A_room3)*(k_wall/Thickness_wall)*(To-T3)) + geothermal_power
+    
     dQins1dt = ((A_Wall_1_o)*(k_wall/Insulation_wall_thickness)*(T1-Tins1)) + ((A_Wall_2_o)*(k_wall/Insulation_wall_thickness)*(T2-Tins1)) + ((A_Wall_3_o)*(k_wall/Insulation_wall_thickness)*(T3-Tins1)) + ((A_outside_wall_long)*(k_wall/Insulation_wall_thickness)*(To-Tins1))
     dQins2dt = ((A_Wall_3_o)*(k_wall/Insulation_wall_thickness)*(T3-Tins2)) + ((A_outside_wall_short)*(k_wall/Insulation_wall_thickness)*(To-Tins2)) 
     dQins3dt = ((A_Wall_1_o)*(k_wall/Insulation_wall_thickness)*(T1-Tins3)) + ((A_Wall_2_o)*(k_wall/Insulation_wall_thickness)*(T2-Tins3)) + ((A_Wall_3_o)*(k_wall/Insulation_wall_thickness)*(T3-Tins3)) + ((A_outside_wall_long)*(k_wall/Insulation_wall_thickness)*(To-Tins3))
     dQins4dt = ((A_Wall_3_o)*(k_wall/Insulation_wall_thickness)*(T1-Tins4)) + ((A_outside_wall_short)*(k_wall/Insulation_wall_thickness)*(To-Tins4))
 
     dQodt = (7/240)*math.pi*math.sin((math.pi*t)/120)
-    dQgdt = 0
     # rate of change of temperature for each room
     dT1dt = (dQ1dt/C_room1)*60
     dT2dt = (dQ2dt/C_room2)*60
     dT3dt = (dQ3dt/C_room3)*60
-    dTadt = (dQadt/C_attic)*60
-    dTbdt = (dQbdt/C_room2)*60
+   
     dTins1 = (dQins1dt/C_insulation_1)*60
     dTins2 = (dQins2dt/C_insulation_2)*60
     dTins3 = (dQins3dt/C_insulation_3)*60
     dTins4 = (dQins4dt/C_insulation_4)*60
     dTodt = (dQodt)
-    dTgdt = (dQgdt)
+  
 
-    return dT1dt, dT2dt, dT3dt, dTadt, dTbdt, dTins1, dTins2, dTins3, dTins4, dTodt, dTgdt
+    return dT1dt, dT2dt, dT3dt, dTins1, dTins2, dTins3, dTins4, dTodt,
 
 # This integrates all the derivatives over time, t
-solution = odeint(Insulation_model, [T10,T20,T30,Ta0,Tb0,Tins1_0,Tins2_0,Tins3_0,Tins4_0,To0,Tg0], t)
-T1,T2,T3,Ta,Tb,Tins1,Tins2,Tins3,Tins4,To,Tg = solution.T
+solution = odeint(Insulation_model, [T10,T20,T30,Tins1_0,Tins2_0,Tins3_0,Tins4_0,To0], t)
+T1,T2,T3,Tins1,Tins2,Tins3,Tins4,To = solution.T
 #----------------------------------------------------------------------------#
 #                                 Plot
 #----------------------------------------------------------------------------#
@@ -159,9 +154,6 @@ plt.plot(t, T1, 'g', lw = 2, label = 'Left room temp')
 plt.plot(t, T2, 'tab:orange', lw = 2, label = 'Middle room temp') 
 plt.plot(t, T3, 'r', lw = 2, label = 'Right room temp') 
 plt.plot(t, To, 'm', lw = 2, label = 'outside temp')
-plt.plot(t, Ta, 'c', lw = 2, label = 'attic temp')
-plt.plot(t, Tb, 'y', lw = 2, label = 'basement temp')
-plt.plot(t, Tg, 'b', lw = 2, label = 'ground temp')
 #plt.plot(t, Tins1, 'y', lw = 2, label = 'Tins1')
 #plt.plot(t, Tins2, 'c', lw = 2, label = 'Tins2')
 #plt.plot(t, Tins3, 'k', lw = 2, label = 'Tins3')
