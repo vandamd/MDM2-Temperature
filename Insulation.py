@@ -119,9 +119,9 @@ def Insulation_model(y,t):
      of each equation is equal to the heat flux (which is flow of energy over time, dQdt)'''
 
     # Net heat flow for every room                        
-    dQ1dt = ((A_Wall_1_2)*(k_wall/Thickness_wall)*(T2-T1)) + ((A_Wall_1_o)*(k_wall/Insulation_wall_thickness)*(Tins1-T1)) + ((A_Wall_1_o)*(k_wall/Insulation_wall_thickness)*(Tins4-T1)) + ((A_Wall_1_o)*(k_wall/Insulation_wall_thickness)*(Tins3-T1)) + ((A_room1)*(k_wall/Thickness_wall)*(Ta-T1)) + geothermal_power
+    dQ1dt = ((A_Wall_1_2)*(k_wall/Thickness_wall)*(T2-T1)) + ((A_Wall_1_o)*(k_wall/Insulation_wall_thickness)*(Tins1-T1)) + ((A_Wall_1_o)*(k_wall/Insulation_wall_thickness)*(Tins4-T1)) + ((A_Wall_1_o)*(k_wall/Insulation_wall_thickness)*(Tins3-T1)) + ((A_room1)*(k_wall/Thickness_wall)*(Ta-T1)) + ((A_room1)*(k_wall/Thickness_wall)*(Tg-T1)) + geothermal_power
     dQ2dt = ((A_Wall_1_2)*(k_wall/Thickness_wall)*(T1-T2)) + ((A_Wall_3_2)*(k_wall/Thickness_wall)*(T3-T2)) + ((A_Wall_2_o)*(k_wall/Insulation_wall_thickness)*(Tins1-T2)) + ((A_Wall_2_o)*(k_wall/Insulation_wall_thickness)*(Tins3-T2)) + ((A_room2)*(k_wall/Thickness_wall)*(Ta-T2)) + ((A_room2)*(k_wall/Thickness_wall)*(Tb-T2)) + geothermal_power
-    dQ3dt = ((A_Wall_3_2)*(k_wall/Thickness_wall)*(T2-T3)) + ((A_Wall_3_o)*(k_wall/Insulation_wall_thickness)*(Tins1-T3)) + ((A_Wall_3_o)*(k_wall/Insulation_wall_thickness)*(Tins2-T3)) + ((A_Wall_3_o)*(k_wall/Insulation_wall_thickness)*(Tins3-T3))  + ((A_room3)*(k_wall/Thickness_wall)*(Ta-T3)) + geothermal_power
+    dQ3dt = ((A_Wall_3_2)*(k_wall/Thickness_wall)*(T2-T3)) + ((A_Wall_3_o)*(k_wall/Insulation_wall_thickness)*(Tins1-T3)) + ((A_Wall_3_o)*(k_wall/Insulation_wall_thickness)*(Tins2-T3)) + ((A_Wall_3_o)*(k_wall/Insulation_wall_thickness)*(Tins3-T3)) + ((A_room3)*(k_wall/Thickness_wall)*(Ta-T3)) + ((A_room3)*(k_wall/Thickness_wall)*(Tg-T3)) + geothermal_power
     dQadt = ((A_room1)*(k_wall/Thickness_wall)*(T1-Ta)) + ((A_room2)*(k_wall/Thickness_wall)*(T2-Ta)) + ((A_room3)*(k_wall/Thickness_wall)*(T3-Ta)) + ((2*A_slope_roof)*(k_wall/Thickness_wall)*(To-Ta)) + ((4*A_triangle)*(k_wall/Thickness_wall)*(T3-Ta))
     dQbdt = ((A_room2)*(k_wall/Thickness_wall)*(T2-Tb)) + ((A_room2)*(k_wall/Thickness_wall)*(Tg-Tb)) + ((4*A_Wall_1_2)*(k_wall/Thickness_wall)*(Tg-Tb))
 
