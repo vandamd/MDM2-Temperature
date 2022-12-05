@@ -22,25 +22,25 @@ def thermalCapacitanceCalculator(p,V,c_p):
 
 # can use this to show any initial values for solutions, or for any constants that are in the differential equations            
 # ========================Variable Initialisation==============================                      
-T10 = 20                                        # Initial temp of Room 1                   
+T10 = 15                                        # Initial temp of Room 1                   
 To0 = 0                                         # Initial temp of outside the house
-N = 1                                          # Number of hours in simulation
+N = 24                                          # Number of hours in simulation
 Xn = 5                                          # Number of points plotted per minute 
 t = np.linspace(0, N*(60), (Xn*N*(60))+1)       
 k_wall = 0.038                                
 Cp_air = 1005
 Cv_air = 718
 air_density = 1.276                             # density of air
-#alternative_outside_temp1 = -(1/144)*math.pi*math.sin((math.pi*t)/1440)     # goes to -20 after 1 day
-#alternative_outside_temp2 = -(1/9)*math.sin(t/90)                           # goes to -20 after 283 minutes
-#alternative_outside_temp3 = (7/240)*math.pi*math.sin((math.pi*t)/120)
+#alternative_outside_temp1 = -(1/1080)*math.sin(t/10800)                      # goes to -20 after 565 hours(23.5 days)
+#alternative_outside_temp2 = (7/1440)*math.pi*math.sin((math.pi*t)/720)       # change of 7oC every 12 hrs
 # ========================Dimensional variables==============================
-L_room1 = 1
+L_room1 = 10
 L_wall = 1
-W_room1 = 1
-Thickness_wall = 0.23               
-H_room1 = 1
-H_wall = 1
+W_room1 = 10
+Thickness_wall = 0.115             
+H_room1 = 2
+H_wall = 2
+A_room1 = AreaCalc(L_room1,W_room1)
 V_room1 = VolumeCalc(L_room1,W_room1,H_room1)
 C_room1 = thermalCapacitanceCalculator(air_density,V_room1 , Cv_air)
 A_Wall_1_o = AreaCalc(W_room1,H_room1)
@@ -59,8 +59,8 @@ def Heat_model(y,t):
      of each equation is equal to the heat flux (which is flow of energy over time, dQdt)'''
 
     # Net heat flow for every room                        
-    dQ1dt = ((5*A_Wall_1_o)*(k_wall/Thickness_wall)*(To-T1)) 
-    dQodt = 0
+    dQ1dt = ((4*A_Wall_1_o)*(k_wall/Thickness_wall)*(To-T1)) + ((A_room1)*(k_wall/Thickness_wall)*(To-T1))
+    dQodt = (7/1440)*math.pi*math.sin((math.pi*t)/720)
 
     # rate of change of temperature for each room
     dT1dt = (dQ1dt/C_room1)*60
@@ -77,11 +77,12 @@ T1,To = solution.T
 #----------------------------------------------------------------------------#
 
 plt.figure()
-plt.plot(t, T1, 'g', lw = 2, label = 'Left room temp')
+plt.plot(t, T1, 'g', lw = 2, label = 'Room temperature')
 plt.plot(t, To, 'm', lw = 2, label = 'outside temperature')
 plt.title('Temperature over time')
 plt.legend()
 plt.xlabel('Time(minutes)')
 plt.ylabel('Temperature ($^\circ$C)')
+plt.ylim(-0.5,T10+1)
 plt.grid()
 plt.show()

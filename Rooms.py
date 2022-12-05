@@ -24,7 +24,7 @@ def thermalCapacitanceCalculator(p,V,c_p):
 # ========================Variable Initialisation==============================                      
 T10 = 15                                        # Initial temp of Room 1                   
 T20 = 20                                        # Initial temp of Room 2
-T30 = 10                                        # Initial temp of Room 3
+T30 = 15                                        # Initial temp of Room 3
 To0 = 0                                         # Initial temp of outside the house
 N = 24                                        # Number of hours in simulation
 Xn = 5                                          # Number of points plotted per minute 
@@ -33,9 +33,8 @@ k_wall = 0.038
 k_air = 0.02435                                 
 Cp_air = 1005
 Cv_air = 718
-#alternative_outside_temp1 = -(1/144)*math.pi*math.sin((math.pi*t)/1440)     # goes to -20 after 1 day
-#alternative_outside_temp2 = -(1/9)*math.sin(t/90)                           # goes to -20 after 283 minutes
-#alternative_outside_temp3 = (7/240)*math.pi*math.sin((math.pi*t)/120)
+#alternative_outside_temp1 = -(1/1080)*math.sin(t/10800)                      # goes to -20 after 565 hours(23.5 days)
+#alternative_outside_temp2 = (7/1440)*math.pi*math.sin((math.pi*t)/720)       # change of 7oC every 12 hrs
 # ========================Dimensional variables==============================
 L_room1 = 10
 L_room2 = 10 
@@ -90,7 +89,7 @@ def Heat_model(y,t):
     dQ1dt = ((A_Wall_1_2)*(k_wall/Thickness_wall)*(T2-T1)) + ((3*A_Wall_1_o)*(k_wall/Thickness_wall)*(To-T1)) + ((A_room1)*(k_wall/Thickness_wall)*(To-T1))
     dQ2dt = ((A_Wall_1_2)*(k_wall/Thickness_wall)*(T1-T2)) + ((A_Wall_3_2)*(k_wall/Thickness_wall)*(T3-T2)) + ((2*A_Wall_2_o)*(k_wall/Thickness_wall)*(To-T2)) + ((A_room3)*(k_wall/Thickness_wall)*(To-T2))
     dQ3dt = ((A_Wall_3_2)*(k_wall/Thickness_wall)*(T2-T3)) + ((3*A_Wall_3_o)*(k_wall/Thickness_wall)*(To-T3)) + ((A_room3)*(k_wall/Thickness_wall)*(To-T3))
-    dQodt = 0
+    dQodt = -(1/144)*math.pi*math.sin((math.pi*t)/1440)
     # rate of change of temperature for each room
     dT1dt = (dQ1dt/C_room1)*60
     dT2dt = (dQ2dt/C_room2)*60
