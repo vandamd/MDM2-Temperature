@@ -59,7 +59,7 @@ def Heat_model(y,t):
      of each equation is equal to the heat flux (which is flow of energy over time, dQdt)'''
 
     # Net heat flow for every room                        
-    dQ1dt = ((4*A_Wall_1_o)*(k_wall/Thickness_wall)*(To-T1)) + ((A_room1)*(k_wall/Thickness_wall)*(To-T1))
+    dQ1dt = ((4*A_Wall_1_o)*(k_wall/Thickness_wall)*(To-T1)) + ((A_room1)*(k_wall/Thickness_wall)*(To-T1)) + 200
     dQodt = (7/1440)*math.pi*math.sin((math.pi*t)/720)
 
     # rate of change of temperature for each room

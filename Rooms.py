@@ -33,6 +33,7 @@ k_wall = 0.038
 k_air = 0.02435                                 
 Cp_air = 1005
 Cv_air = 718
+geothermal_power = 1000/3
 #alternative_outside_temp1 = -(1/1080)*math.sin(t/10800)                      # goes to -20 after 565 hours(23.5 days)
 #alternative_outside_temp2 = (7/1440)*math.pi*math.sin((math.pi*t)/720)       # change of 7oC every 12 hrs
 # ========================Dimensional variables==============================
@@ -86,9 +87,9 @@ def Heat_model(y,t):
      of each equation is equal to the heat flux (which is flow of energy over time, dQdt)'''
 
     # Net heat flow for every room                        
-    dQ1dt = ((A_Wall_1_2)*(k_wall/Thickness_wall)*(T2-T1)) + ((3*A_Wall_1_o)*(k_wall/Thickness_wall)*(To-T1)) + ((A_room1)*(k_wall/Thickness_wall)*(To-T1))
-    dQ2dt = ((A_Wall_1_2)*(k_wall/Thickness_wall)*(T1-T2)) + ((A_Wall_3_2)*(k_wall/Thickness_wall)*(T3-T2)) + ((2*A_Wall_2_o)*(k_wall/Thickness_wall)*(To-T2)) + ((A_room3)*(k_wall/Thickness_wall)*(To-T2))
-    dQ3dt = ((A_Wall_3_2)*(k_wall/Thickness_wall)*(T2-T3)) + ((3*A_Wall_3_o)*(k_wall/Thickness_wall)*(To-T3)) + ((A_room3)*(k_wall/Thickness_wall)*(To-T3))
+    dQ1dt = ((A_Wall_1_2)*(k_wall/Thickness_wall)*(T2-T1)) + ((3*A_Wall_1_o)*(k_wall/Thickness_wall)*(To-T1)) + ((A_room1)*(k_wall/Thickness_wall)*(To-T1)) + geothermal_power
+    dQ2dt = ((A_Wall_1_2)*(k_wall/Thickness_wall)*(T1-T2)) + ((A_Wall_3_2)*(k_wall/Thickness_wall)*(T3-T2)) + ((2*A_Wall_2_o)*(k_wall/Thickness_wall)*(To-T2)) + ((A_room3)*(k_wall/Thickness_wall)*(To-T2)) + geothermal_power
+    dQ3dt = ((A_Wall_3_2)*(k_wall/Thickness_wall)*(T2-T3)) + ((3*A_Wall_3_o)*(k_wall/Thickness_wall)*(To-T3)) + ((A_room3)*(k_wall/Thickness_wall)*(To-T3)) + geothermal_power
     dQodt = -(1/144)*math.pi*math.sin((math.pi*t)/1440)
     # rate of change of temperature for each room
     dT1dt = (dQ1dt/C_room1)*60
