@@ -1,4 +1,4 @@
-# Mathematical and Data Modelling 2 (MDM1) - Report 2
+# Mathematical and Data Modelling 2 (MDM2) - Report 2
 
 ## Modelling a Central Heating System of Architecture
 
